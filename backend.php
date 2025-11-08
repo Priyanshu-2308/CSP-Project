@@ -3,27 +3,22 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-
 $dataFile = "data.json";
-
-// Make sure the file exists
+// Check if the file exists
 if (!file_exists($dataFile)) {
   file_put_contents($dataFile, json_encode([]));
 }
-
-// Read data
+// reading the data
 $items = json_decode(file_get_contents($dataFile), true);
 if (!is_array($items)) $items = [];
-
 $method = $_SERVER["REQUEST_METHOD"];
-
 switch ($method) {
-  // 🔹 Read all items
+  // read all the items
   case "GET":
     echo json_encode($items);
     break;
 
-  // 🔹 Create new item (with duplicate check)
+  // create new entry with duplicate check
   case "POST":
     $input = json_decode(file_get_contents("php://input"), true);
     if (!$input || empty($input["title"])) {
@@ -31,10 +26,8 @@ switch ($method) {
       echo json_encode(["error" => "Invalid input"]);
       exit;
     }
-
     $title = strtolower(trim($input["title"]));
-
-    // Check for duplicates (case-insensitive)
+    // case insensetive duplicate check
     foreach ($items as $item) {
       if (strtolower(trim($item["title"])) === $title) {
         http_response_code(409);
@@ -42,7 +35,6 @@ switch ($method) {
         exit;
       }
     }
-
     $newItem = [
       "id" => uniqid(),
       "title" => $input["title"],
@@ -56,7 +48,7 @@ switch ($method) {
     echo json_encode(["success" => true, "item" => $newItem]);
     break;
 
-  // 🔹 Update existing item
+  // update the entry
   case "PUT":
     $input = json_decode(file_get_contents("php://input"), true);
     if (!$input || empty($input["id"])) {
@@ -70,12 +62,10 @@ switch ($method) {
         $item = array_merge($item, $input);
       }
     }
-
     file_put_contents($dataFile, json_encode($items, JSON_PRETTY_PRINT));
     echo json_encode(["success" => true]);
     break;
-
-  // 🔹 Delete item
+  // delete the entry
   case "DELETE":
     $input = json_decode(file_get_contents("php://input"), true);
     if (!$input || empty($input["id"])) {
@@ -83,12 +73,10 @@ switch ($method) {
       echo json_encode(["error" => "Invalid ID"]);
       exit;
     }
-
     $items = array_values(array_filter($items, fn($i) => $i["id"] !== $input["id"]));
     file_put_contents($dataFile, json_encode($items, JSON_PRETTY_PRINT));
     echo json_encode(["success" => true]);
     break;
-
   default:
     http_response_code(405);
     echo json_encode(["error" => "Method not allowed"]);
