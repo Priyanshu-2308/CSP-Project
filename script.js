@@ -20,7 +20,7 @@ items = await res.json();
 render();
 }
 
-
+// Modal controls
 addBtn.addEventListener("click", () => openModal());
 cancelBtn.addEventListener("click", closeModal);
 saveBtn.addEventListener("click", saveItem);
@@ -49,7 +49,7 @@ modal.classList.add("hidden");
 editingId = null;
 }
 
-
+// Save or update item
 async function saveItem() {
 const title = titleInput.value.trim();
 if (!title) return alert("Enter a title!");
@@ -86,7 +86,6 @@ alert(data.error || "Something went wrong!");
 }
 }
 
-
 async function deleteItem(id) {
 if (!confirm("Delete this item?")) return;
 const res = await fetch(API_URL, {
@@ -98,10 +97,9 @@ const data = await res.json();
 if (data.success) loadItems();
 }
 
-
 function render() {
 const q = searchInput.value.toLowerCase();
-const filter = filterSelect.value;
+const filter = filterSelect?filterSelect.value:"All";
 grid.innerHTML = "";
 
 const filtered = items.filter(i => {
@@ -130,6 +128,7 @@ grid.appendChild(card);
 }
 
 searchInput.addEventListener("input", render);
-filterSelect.addEventListener("change", render);
+if(filterSelect)
+    filterSelect.addEventListener("change", render);
 
 window.addEventListener("DOMContentLoaded", loadItems);
