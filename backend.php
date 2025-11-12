@@ -3,83 +3,64 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-$dataFile = "data.json";
-// Check if the file exists
-if (!file_exists($dataFile)) {
-  file_put_contents($dataFile, json_encode([]));
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+  http_response_code(200);
+  exit;
 }
-// reading the data
-$items = json_decode(file_get_contents($dataFile), true);
-if (!is_array($items)) $items = [];
-$method = $_SERVER["REQUEST_METHOD"];
+
+// Check if file exists
+$file = 'data.json';
+if (!file_exists($file)) {
+  file_put_contents($file, json_encode([]));
+}
+
+$data = json_decode(file_get_contents($file), true) ?? [];
+$method = $_SERVER['REQUEST_METHOD'];
+
 switch ($method) {
-  // read all the items
-  case "GET":
-    echo json_encode($items);
+  case 'GET':
+    echo json_encode($data);
     break;
-
-  // create new entry with duplicate check
-  case "POST":
+  
+  // Add new entry
+  case 'POST':
     $input = json_decode(file_get_contents("php://input"), true);
-    if (!$input || empty($input["title"])) {
-      http_response_code(400);
-      echo json_encode(["error" => "Invalid input"]);
+    if (empty($input['title'])) {
+      echo json_encode(["success" => false, "error" => "Title is required"]);
       exit;
     }
-    $title = strtolower(trim($input["title"]));
-    // case insensetive duplicate check
-    foreach ($items as $item) {
-      if (strtolower(trim($item["title"])) === $title) {
-        http_response_code(409);
-        echo json_encode(["error" => "Title already exists!"]);
-        exit;
-      }
-    }
-    $newItem = [
-      "id" => uniqid(),
-      "title" => $input["title"],
-      "status" => $input["status"] ?? "Plan to Watch",
-      "genre" => $input["genre"] ?? "",
-      "notes" => $input["notes"] ?? ""
-    ];
-
-    $items[] = $newItem;
-    file_put_contents($dataFile, json_encode($items, JSON_PRETTY_PRINT));
-    echo json_encode(["success" => true, "item" => $newItem]);
+    $input['id'] = uniqid();
+    $data[] = $input;
+    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT), LOCK_EX);
+    echo json_encode(["success" => true]);
     break;
-
-  // update the entry
-  case "PUT":
+  
+  // Update entry
+  case 'PUT':
     $input = json_decode(file_get_contents("php://input"), true);
-    if (!$input || empty($input["id"])) {
-      http_response_code(400);
-      echo json_encode(["error" => "Invalid ID"]);
-      exit;
-    }
-
-    foreach ($items as &$item) {
-      if ($item["id"] == $input["id"]) {
+    foreach ($data as &$item) {
+      if ($item['id'] == $input['id']) {
         $item = array_merge($item, $input);
+        break;
       }
     }
-    file_put_contents($dataFile, json_encode($items, JSON_PRETTY_PRINT));
+    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT), LOCK_EX);
     echo json_encode(["success" => true]);
     break;
-  // delete the entry
-  case "DELETE":
+
+  // Delete entry
+  case 'DELETE':
     $input = json_decode(file_get_contents("php://input"), true);
-    if (!$input || empty($input["id"])) {
-      http_response_code(400);
-      echo json_encode(["error" => "Invalid ID"]);
-      exit;
-    }
-    $items = array_values(array_filter($items, fn($i) => $i["id"] !== $input["id"]));
-    file_put_contents($dataFile, json_encode($items, JSON_PRETTY_PRINT));
+    $data = array_filter($data, fn($item) => $item['id'] != $input['id']);
+    file_put_contents($file, json_encode(array_values($data), JSON_PRETTY_PRINT), LOCK_EX);
     echo json_encode(["success" => true]);
     break;
+
   default:
     http_response_code(405);
-    echo json_encode(["error" => "Method not allowed"]);
+    echo json_encode(["success" => false, "error" => "Method Not Allowed"]);
+    break;
 }
 ?>
 
