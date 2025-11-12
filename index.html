@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  
+
 <header class="top-header" id="topHeader">
   <div class="header-left">
     <div class="logo">Keepr</div>
   </div>
+
   <div class="header-center">
     <input
       id="searchInput"
@@ -25,8 +26,23 @@
   </div>
 </header>
 
-  <main id="grid"></main>
+<main class="columns" id="columns">
+      <section class="column watching">
+        <h2>Watching <span class="count" id="countWatching"></span></h2>
+        <div class="column-grid" id="watchingGrid" aria-live="polite"></div>
+      </section>
 
+      <section class="column watched">
+        <h2>Watched <span class="count" id="countWatched"></span></h2>
+        <div class="column-grid" id="watchedGrid" aria-live="polite"></div>
+      </section>
+
+      <section class="column plan">
+        <h2>Plan to Watch <span class="count" id="countPlan"></span></h2>
+        <div class="column-grid" id="planGrid" aria-live="polite"></div>
+      </section>
+    </main>
+ 
   <div id="modal" class="modal hidden">
     <div class="modal-content">
       <h3 id="modalTitle">Add Title</h3>
