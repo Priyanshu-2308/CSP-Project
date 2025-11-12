@@ -1,4 +1,3 @@
-const grid = document.getElementById("grid");
 const addBtn = document.getElementById("addBtn");
 const modal = document.getElementById("modal");
 const titleInput = document.getElementById("titleInput");
@@ -9,6 +8,12 @@ const saveBtn = document.getElementById("saveBtn");
 const cancelBtn = document.getElementById("cancelBtn");
 const searchInput = document.getElementById("searchInput");
 const filterSelect = document.getElementById("filterSelect");
+const watchingGrid = document.getElementById("watchingGrid");
+const watchedGrid = document.getElementById("watchedGrid");
+const planGrid = document.getElementById("planGrid");
+const countWatching = document.getElementById("countWatching");
+const countWatched = document.getElementById("countWatched");
+const countPlan = document.getElementById("countPlan");
 
 let items = [];
 let editingId = null;
@@ -20,7 +25,6 @@ items = await res.json();
 render();
 }
 
-// Modal controls
 addBtn.addEventListener("click", () => openModal());
 cancelBtn.addEventListener("click", closeModal);
 saveBtn.addEventListener("click", saveItem);
@@ -49,10 +53,16 @@ modal.classList.add("hidden");
 editingId = null;
 }
 
-// Save or update item
 async function saveItem() {
 const title = titleInput.value.trim();
 if (!title) return alert("Enter a title!");
+const duplicate = items.some(
+(i) => i.title.toLowerCase() === title.toLowerCase() && i.id !== editingId
+);
+if (duplicate) {
+alert("A title with this name already exists!");
+return;
+}
 
 const itemData = {
 title,
@@ -97,34 +107,50 @@ const data = await res.json();
 if (data.success) loadItems();
 }
 
-function render() {
-const q = searchInput.value.toLowerCase();
-const filter = filterSelect?filterSelect.value:"All";
-grid.innerHTML = "";
-
-const filtered = items.filter(i => {
-const matchesQuery =
-i.title.toLowerCase().includes(q) ||
-i.notes.toLowerCase().includes(q) ||
-i.genre.toLowerCase().includes(q);
-const matchesFilter = filter === "All" || i.status === filter;
-return matchesQuery && matchesFilter;
-});
-
-if (filtered.length === 0) {
-grid.innerHTML = `<p style="color:#999;text-align:center;">No titles found.</p>`;
-return;
+function createCard(item) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div>
+      <h3>${item.title}</h3>
+      <small>${item.genre || "No genre"}</small>
+      <div class="badge ${item.status}">${item.status}</div>
+    </div>
+    <div class="note-section">${item.notes || "No notes yet."}</div>
+    <div class="actions">
+      <button class="edit">Edit</button>
+      <button class="delete">Delete</button>
+    </div>
+  `;
+  card.querySelector(".edit").onclick = () => openModal(item.id);
+  card.querySelector(".delete").onclick = () => deleteItem(item.id);
+  return card;
 }
 
-filtered.forEach(item => {
-const card = document.createElement("div");
-card.className = "card";
-card.innerHTML = `       <div>         <h3>${item.title}</h3>         <small>${item.genre || "No genre"}</small>         <div class="badge ${item.status}">${item.status}</div>       </div>       <div class="note-section">${item.notes || "No notes yet."}</div>       <div class="actions">         <button class="edit">Edit</button>         <button class="delete">Delete</button>       </div>
-    `;
-card.querySelector(".edit").addEventListener("click", () => openModal(item.id));
-card.querySelector(".delete").addEventListener("click", () => deleteItem(item.id));
-grid.appendChild(card);
-});
+function render() {
+  const q = (searchInput.value || "").toLowerCase();
+
+  const filtered = items.filter(
+    (i) =>
+      i.title.toLowerCase().includes(q) ||
+      i.genre.toLowerCase().includes(q) ||
+      i.notes.toLowerCase().includes(q)
+  );
+
+  watchingGrid.innerHTML = "";
+  watchedGrid.innerHTML = "";
+  planGrid.innerHTML = "";
+
+  filtered.forEach((it) => {
+    const card = createCard(it);
+    if (it.status === "Watching") watchingGrid.append(card);
+    else if (it.status === "Watched") watchedGrid.append(card);
+    else planGrid.append(card);
+  });
+
+  countWatching.textContent = `(${filtered.filter(i=>i.status==='Watching').length})`;
+  countWatched.textContent = `(${filtered.filter(i=>i.status==='Watched').length})`;
+  countPlan.textContent = `(${filtered.filter(i=>i.status==='Plan to Watch').length})`;
 }
 
 searchInput.addEventListener("input", render);
