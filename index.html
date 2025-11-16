@@ -1,32 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Keepr</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main id="authView" class="auth-view">
+    <div class="auth-card">
+      <h1 class="brand-title">Keepr</h1>
+      <div id="authForms">
+        <form id="loginForm" class="auth-form">
+          <h2>Log in</h2>
+          <input id="loginEmail" type="email" placeholder="Email" required />
+          <input id="loginPassword" type="password" placeholder="Password" required />
+          <div class="auth-actions">
+            <button type="submit" class="primary">Log in</button>
+            <button type="button" id="showSignup" class="ghost">Create account</button>
+          </div>
+        </form>
+        <form id="signupForm" class="auth-form hidden">
+          <h2>Create account</h2>
+          <input id="signupName" placeholder="Full name" required />
+          <input id="signupEmail" type="email" placeholder="Email" required />
+          <input id="signupPassword" type="password" placeholder="Password" required />
+          <div class="auth-actions">
+            <button type="submit" class="primary">Sign up</button>
+            <button type="button" id="showLogin" class="ghost">Back to login</button>
+          </div>
+        </form>
+      </div>
+      <p class="auth-note">Your data stays on this device only (saved to localStorage).</p>
+    </div>
+  </main>
 
-<header class="top-header" id="topHeader">
-  <div class="header-left">
-    <div class="logo">Keepr</div>
-  </div>
+  <div id="appView" class="app-view hidden">
+    <header class="top-header" id="topHeader">
+      <div class="header-left">
+        <div class="logo">Keepr</div>
+      </div>
 
-  <div class="header-center">
-    <input
-      id="searchInput"
-      class="header-search"
-      type="search"
-      placeholder="Search by title, notes, genre..."
-    />
-  </div>
-  <div class="header-right">
-   <button id="addBtn" class="add-floating" title="Add new title">＋</button>
-  </div>
-</header>
+      <div class="header-center">
+        <input id="searchInput" class="header-search" type="search"
+          placeholder="Search by title, notes, genre... (try 'romance', 'thriller', 'action')" />
+      </div>
 
-<main class="columns" id="columns">
+      <div class="header-right">
+        <button id="addFloatingBtn" class="add-floating" title="Add new title">＋</button>
+        <button id="profileBtn" class="profile-btn" title="Open profile">
+          <img id="profilePicSmall" alt="Profile" src="" />
+        </button>
+      </div>
+    </header>
+
+    <main class="columns" id="columns">
       <section class="column watching">
         <h2>Watching <span class="count" id="countWatching"></span></h2>
         <div class="column-grid" id="watchingGrid" aria-live="polite"></div>
@@ -42,21 +70,66 @@
         <div class="column-grid" id="planGrid" aria-live="polite"></div>
       </section>
     </main>
- 
-  <div id="modal" class="modal hidden">
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-content">
       <h3 id="modalTitle">Add Title</h3>
-      <input id="titleInput" placeholder="Enter title..." />
-      <select id="statusInput">
-        <option value="Watching">Watching</option>
-        <option value="Watched">Watched</option>
-        <option value="Plan to Watch">Plan to Watch</option>
-      </select>
-      <input id="genreInput" placeholder="Genre (optional)" />
-      <textarea id="notesInput" placeholder="Add notes or tags..."></textarea>
+
+      <label class="field">
+        <span class="label">Title</span>
+        <input id="titleInput" placeholder="Enter title..." />
+      </label>
+
+      <label class="field">
+        <span class="label">Status</span>
+        <select id="statusInput">
+          <option value="Watching">Watching</option>
+          <option value="Watched">Watched</option>
+          <option value="Plan to Watch">Plan to Watch</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="label">Genre / Theme</span>
+        <input id="genreInput" placeholder="Genre (romance, thriller, action...)" />
+      </label>
+
+      <label class="field">
+        <span class="label">Platform Link (optional)</span>
+        <input id="platformInput" placeholder="https://..." />
+      </label>
+
+      <label class="field">
+        <span class="label">Notes</span>
+        <textarea id="notesInput" rows="4" placeholder="Add notes or tags..."></textarea>
+      </label>
+
       <div class="modal-actions">
         <button id="cancelBtn" class="ghost">Cancel</button>
-        <button id="saveBtn">Save</button>
+        <button id="saveBtn" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="profileModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <h3>Profile</h3>
+      <label class="field">
+        <span class="label">Name</span>
+        <input id="profileName" placeholder="Full name" />
+      </label>
+      <label class="field">
+        <span class="label">Email</span>
+        <input id="profileEmail" type="email" readonly />
+      </label>
+      <label class="field">
+        <span class="label">Profile picture (optional)</span>
+        <input id="profilePicInput" type="file" accept="image/*" />
+      </label>
+      <div class="modal-actions">
+        <button id="logoutBtn" class="ghost">Log out</button>
+        <button id="saveProfileBtn" class="primary">Save</button>
       </div>
     </div>
   </div>
