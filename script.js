@@ -67,6 +67,7 @@ const THEMES = {
     "--bg": "#fff8f2",
     "--page-accent": "#ffb5a7",
     "--card-bg": "#eaf7f1",
+    "--text": "#000000ff",
     "--note-bg": "#fff1c6",
     "--col-watching": "#d8f3dc",
     "--col-watched": "#e9d8fd",
