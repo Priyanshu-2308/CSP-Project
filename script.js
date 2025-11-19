@@ -258,6 +258,7 @@ async function login(e) {
 async function logout() {
   await api("logout");
   currentUser = null;
+  hide(profileModal);
   showAuth();
 }
 
