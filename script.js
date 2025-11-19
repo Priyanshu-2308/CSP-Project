@@ -65,6 +65,7 @@ async function api(action, payload = {}) {
 const THEMES = {
   default: {
     "--bg": "#fff8f2",
+    "--text": "#000000ff",
     "--page-accent": "#ffb5a7",
     "--card-bg": "#eaf7f1",
     "--note-bg": "#fff1c6",
