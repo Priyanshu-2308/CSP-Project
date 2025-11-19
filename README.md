@@ -39,7 +39,7 @@ It allows users to:
 
 ## 📁 Project Structure 
 
-/Keepr<br>
+/CSP-Project<br>
 │── index.html <br>
 │── style.css<br>
 │── script.js<br>
